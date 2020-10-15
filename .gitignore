@@ -1,3 +1,5 @@
 /cluster/cluster.json
 /cluster/ssh
 /cluster/ssh.pub
+
+/kube_files/plugins/metallb/config.yaml

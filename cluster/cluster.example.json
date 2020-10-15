@@ -6,7 +6,38 @@
             "worker2_ip"
         ]
     },
-    "kube_packages": ["kubelet", "kubeadm", "kubectl"],
-    "docker_packages": ["containerd.io=1.2.13-2", "docker-ce=5:19.03.11~3-0~ubuntu-$(lsb_release -cs)", "docker-ce-cli=5:19.03.11~3-0~ubuntu-$(lsb_release -cs)"],
-    "base_packages": ["apt-transport-https", "ca-certificates", "curl", "software-properties-common", "gnupg2", "nfs-common"]
+    "kube_packages": [
+        "kubelet",
+        "kubeadm",
+        "kubectl"
+    ],
+    "docker_packages": [
+        "containerd.io=1.2.13-2",
+        "docker-ce=5:19.03.11~3-0~ubuntu-$(lsb_release -cs)",
+        "docker-ce-cli=5:19.03.11~3-0~ubuntu-$(lsb_release -cs)"
+    ],
+    "base_packages": [
+        "apt-transport-https",
+        "ca-certificates",
+        "curl",
+        "software-properties-common",
+        "gnupg2",
+        "nfs-common"
+    ],
+    "init": {
+        "api_server": "master_node_ip",
+        "pod_network": "192.168.0.0/16 | Some other CIDR (Requires more calico conf"
+    },
+    "plugins": {
+        "calico": {},
+        "helm": {
+            "version": "2 | 3"
+        },
+        "metallb": {},
+        "nfs-client-provisioner": {
+            "nfs_server": "nfs_ip",
+            "nfs_path": "/srv/nfs/binder",
+            "namespace": "binder"
+        }
+    }
 }
