@@ -1,0 +1,9 @@
+{
+    "nodes": {
+        "master": "master_ip",
+        "workers": [
+            "worker1_ip",
+            "worker2_ip"
+        ]
+    }
+}
