@@ -25,7 +25,7 @@ def prepare_kubeadm(config):
     node_group.run("echo this works")
 
     # Configure IP Tables
-    node_group_put(node_group, "kube_files/k8s.conf", "/etc/sysctl.d/k8s.conf")
+    node_group_put(node_group, "kube_files/nodes/k8s.conf", "/etc/sysctl.d/k8s.conf")
     node_group.run("sysctl --system")
 
     # Install Required Everything (APT, Docker, Kube)
@@ -42,7 +42,7 @@ def install_docker(docker_packages, node_group):
     node_group.run("curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -")
     node_group.run('sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"')
     install_packages(docker_packages, node_group)
-    node_group_put(node_group, "kube_files/daemon.json", "/etc/docker/daemon.json")
+    node_group_put(node_group, "kube_files/nodes/daemon.json", "/etc/docker/daemon.json")
     node_group.run("mkdir -p /etc/systemd/system/docker.service.d")
     node_group.run("sudo systemctl daemon-reload")
     node_group.run("sudo systemctl restart docker")
@@ -50,7 +50,7 @@ def install_docker(docker_packages, node_group):
 
 def install_kubeadm(kube_packages, node_group):
     node_group.run("curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -")
-    node_group_put(node_group, "kube_files/kubernetes.list", "/etc/apt/sources.list.d/kubernetes.list")
+    node_group_put(node_group, "kube_files/nodes/kubernetes.list", "/etc/apt/sources.list.d/kubernetes.list")
     install_packages(kube_packages, node_group)
     node_group.run("apt-mark hold {}".format(" ".join(kube_packages)))
 
