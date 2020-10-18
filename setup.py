@@ -23,7 +23,10 @@ def prepare_kubeadm(config):
     # Get all the nodes
     nodes = get_node_list(config["nodes"])
     node_group = get_node_group(nodes)
-    node_group.run("echo this works")
+    node_group.run("Hi - You have connected to a node.")
+
+    # Disable Swap
+    node_group.run("swapoff -a; sed -i '/swap/d' /etc/fstab")
 
     # Configure IP Tables
     node_group_put(node_group, "kube_files/nodes/k8s.conf", "/etc/sysctl.d/k8s.conf")
@@ -64,7 +67,7 @@ def init_kubeadm(config):
     worker_group = ThreadingGroup(*config["nodes"]["workers"], user="root")
 
     # Run Init and Join Nodes
-    master_conn.run("kube init --api-server-advertise={} --pod-network-cidr={}".format(init_conf["api_server"], init_conf["pod_network"]))
+    master_conn.run("kubeadm init --apiserver-advertise-address={} --pod-network-cidr={}".format(init_conf["api_server"], init_conf["pod_network"]))
     master_conn.run("mkdir -p $HOME/.kube")
     master_conn.run("cp -i /etc/kubernetes/admin.conf $HOME/.kube/config")
     master_conn.run("chown $(id -u):$(id -g) $HOME/.kube/config")
@@ -130,12 +133,16 @@ def read_cluster_conf():
 if __name__ == "__main__":
     config = read_cluster_conf()
     print("Making this more modular - then moving to classes.")
-    if sys.argv[1] == "prepare":
-        print("Preparing Cluster Nodes")
-        prepare_kubeadm(config)
-    if sys.argv[1] == "init":
-        print("Initialiing Kube Cluster")
-        init_kubeadm(config)
-    if sys.argv[1] == "plugins":
-        print("Installing Plugins")
-        install_plugins(config)
+    try:
+        if sys.argv[1] == "prepare":
+            print("Preparing Cluster Nodes")
+            prepare_kubeadm(config)
+        if sys.argv[1] == "init":
+            print("Initialiing Kube Cluster")
+            init_kubeadm(config)
+        if sys.argv[1] == "plugins":
+            print("Installing Plugins")
+            install_plugins(config)
+    except:
+        print("This is still in alpha, please follow the rules")
+        exit()
