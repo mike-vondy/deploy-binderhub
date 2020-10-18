@@ -3,3 +3,7 @@
 /cluster/ssh.pub
 
 /kube_files/plugins/metallb/config.yaml
+
+/kube_files/plugins/binderhub/config.yaml
+/kube_files/plugins/binderhub/secret.yaml
+/kube_files/plugins/binderhub/update_config.yaml

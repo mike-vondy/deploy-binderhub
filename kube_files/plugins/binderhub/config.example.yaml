@@ -1,0 +1,9 @@
+config:
+  BinderHub:
+    use_registry: true
+    image_prefix: <docker-id OR organization-name>/<prefix>-
+jupyterhub:
+  hub:
+    db:
+      pvc:
+        storageClassName: <nfs-client storageClassName>

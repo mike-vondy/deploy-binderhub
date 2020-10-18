@@ -4,6 +4,7 @@ from fabric import Connection, ThreadingGroup, SerialGroup
 import getpass
 import json
 import time
+import yaml
 import sys #just for refractoring
 
 
@@ -79,9 +80,9 @@ def init_kubeadm(config):
 def install_plugins(config):
     plugin_conf = config["plugins"]
     master_conn = Connection(config["nodes"]["master"], user="root")
-    install_calico(master_conn, plugin_conf['calico'])
-    install_helm(master_conn, plugin_conf['helm'])
-    install_metallb(master_conn, plugin_conf['metallb'])
+    #install_calico(master_conn, plugin_conf['calico'])
+    #install_helm(master_conn, plugin_conf['helm'])
+    #install_metallb(master_conn, plugin_conf['metallb'])
     install_nfs_client_provisioner(master_conn, plugin_conf['nfs-client-provisioner'])
     
 def install_calico(master_conn, calico_conf):
@@ -121,9 +122,51 @@ def install_metallb(master_conn, metallb_conf):
 def install_nfs_client_provisioner(master_conn, nfs_client_conf):
     nfs_ns = nfs_client_conf["namespace"]
     nfs_server = nfs_client_conf["nfs_server"]
-    nfs_path = nfs_client_conf["export_path"]
+    nfs_path = nfs_client_conf["nfs_path"]
     master_conn.run("helm install --namespace {} --set nfs.server={} --set nfs.path={} stable/nfs-client-provisioner".format(nfs_ns, nfs_server, nfs_path))
-    pass
+
+def install_binderhub(config):
+    # When trying to automate - need to work on editing YAML file on the side...
+
+    # Setup Config Files
+    master_conn = Connection(config["nodes"]["master"], user="root")
+    remote_dir = "/root/kube_plugins/binderhub/"
+    remote_config = remote_dir + "config.yaml"
+    remote_secret = remote_dir + "secret.yaml"
+
+    master_conn.run('mkdir -p /root/kube_plugins/binderhub')
+    master_conn.put('kube_files/plugins/binderhub/config.yaml', remote=remote_config)
+    master_conn.put('kube_files/plugins/binderhub/secret.yaml', remote=remote_secret)
+
+    # Should move these to package vars
+    version = "0.2.0-n224.hf5cc56a"
+    name = "binder"
+    namespace = "binder"
+    config_flags = '-f {} -f {}'.format(remote_secret, remote_config) # To shorten the log lings a bit (it is passed to helm)
+    
+    # Setup Binderhub Chart
+    master_conn.run('helm repo add jupyterhub https://jupyterhub.github.io/helm-chart')
+    master_conn.run('helm repo update')
+    master_conn.run('helm install jupyterhub/binderhub --version={} --name={} --namespace={} {}'.format(version, name, namespace, config_flags))
+
+    # Find External IP
+    svc = master_conn.run('kubectl --namespace={} get svc proxy-public'.format(namespace)).stdout
+    external_ip = svc.split("\n")[1].split()[3]
+    binder_conf = read_yaml_conf('kube_files/plugins/binderhub/config.yaml')
+    binder_conf['config']['BinderHub']['hub_url'] = "http://{}".format(external_ip)
+    write_yaml_conf(binder_conf, 'kube_files/plugins/binderhub/update_config.yaml')
+    master_conn.put('kube_files/plugins/binderhub/update_config.yaml', remote=remote_config)
+    master_conn.run('helm upgrade {} jupyterhub/binderhub --version={} {}'.format(name, version, config_flags))
+
+
+def write_yaml_conf(data, conf_file):
+    with open(conf_file, 'w') as f:
+        yaml.dump(data, f)
+
+def read_yaml_conf(conf_file):
+    with open(conf_file) as f:
+        data = yaml.load(f, Loader=yaml.FullLoader)
+    return data
 
 def read_cluster_conf():
     with open("cluster/cluster.json", "r") as f:
@@ -143,6 +186,9 @@ if __name__ == "__main__":
         if sys.argv[1] == "plugins":
             print("Installing Plugins")
             install_plugins(config)
+        if sys.argv[1] == "binderhub":
+            print("Installing Binderhub")
+            install_binderhub(config)
     except:
         print("This is still in alpha, please follow the rules")
         exit()
