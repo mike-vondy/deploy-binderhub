@@ -4,6 +4,7 @@ from fabric import Connection, ThreadingGroup, SerialGroup
 import getpass
 import json
 import time
+import sys #just for refractoring
 
 
 def get_node_list(node_config):
@@ -128,6 +129,13 @@ def read_cluster_conf():
 
 if __name__ == "__main__":
     config = read_cluster_conf()
-    prepare_kubeadm(config)
-    init_kubeadm(config)
-    install_plugins(config)
+    print("Making this more modular - then moving to classes.")
+    if sys.argv[1] == "prepare":
+        print("Preparing Cluster Nodes")
+        prepare_kubeadm(config)
+    if sys.argv[1] == "init":
+        print("Initialiing Kube Cluster")
+        init_kubeadm(config)
+    if sys.argv[1] == "plugins":
+        print("Installing Plugins")
+        install_plugins(config)
