@@ -1,0 +1,6 @@
+---
+plugin: nfs-client-provisioner
+config:
+  nfs-server: 10.0.0.100
+  nfs-path: /srv/nfs/kubedata
+  namespace: default

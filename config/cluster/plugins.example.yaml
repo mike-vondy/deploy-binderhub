@@ -1,0 +1,16 @@
+---
+network:
+  - plugin: calico
+    config: ""
+services:
+  - plugin: metallb
+    config:
+      address-pools:
+        - start: 10.0.0.0
+          end: 10.0.0.255
+storage:
+  - plugin: nfs-client-provisioner
+    config:
+      nfs-server: 10.0.0.100
+      nfs-path: /srv/nfs/kubedata
+      namespace: default

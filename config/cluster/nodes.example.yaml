@@ -1,0 +1,25 @@
+---
+master: user@master_node_ip
+workers:
+  - user@worker_ip
+  - user@worker_ip
+packages:
+  base:
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - software-properties-common
+    - gnupg2
+    - nfs-common
+  docker:
+    - "containerd.io=1.2.13-2"
+    - "docker-ce=5:19.03.11~3-0~ubuntu-$(lsb_release -cs)"
+    - "docker-ce-cli=5:19.03.11~3-0~ubuntu-$(lsb_release -cs)"
+  kubernetes:
+    - "kubelet"
+    - "kubeadm"
+    - "kubectl"
+plugins:
+  network: "Select Network Plugin < calico >"
+  service: "Select Service Plugin < metallb >"
+  storage: "Select storage service < nfs-client-provisioner >"

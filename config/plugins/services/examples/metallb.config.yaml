@@ -1,0 +1,6 @@
+---
+plugin: metallb
+configs:
+  address-pools:
+    - start: 10.0.0.0
+      end: 10.0.0.255
