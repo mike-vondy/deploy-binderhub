@@ -34,9 +34,11 @@ def prepare_kubeadm(config):
     install_kubeadm(config["kube_packages"], node_group)
 
 
-def install_packages(package_list, node_group):
+def install_packages(package_list, node_group, mark=False):
     node_group.run("apt-get update")
     node_group.run("apt-get install -y {}".format(" ".join(package_list)))
+    if mark:
+        node_group.run("apt-mark hold {}".format(" ".join(package_list)))
 
 def install_docker(docker_packages, node_group):
     node_group.run("curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -")
