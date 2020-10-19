@@ -3,7 +3,8 @@
 
 /resources/packages/*
 
-*.pyc
+/python/__pycache__/
+*.pyc[cod]
 
 pip-log.txt
 pip-delete-this-directory.txt
