@@ -1,12 +1,9 @@
-/cluster/cluster.json
-/cluster/ssh
-/cluster/ssh.pub
+/config/cluster.yaml
+/config/plugins.yaml
 
-/kube_files/plugins/metallb/config.yaml
+/resources/packages/*
 
-/kube_files/plugins/binderhub/config.yaml
-/kube_files/plugins/binderhub/secret.yaml
-/kube_files/plugins/binderhub/update_config.yaml
+*.pyc
 
-/config/cluster/nodes.yaml
-/config/cluster/plugins.yaml
+pip-log.txt
+pip-delete-this-directory.txt

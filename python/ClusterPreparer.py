@@ -12,11 +12,12 @@ Details:
 (Also Moves specific files into the right places on hosts as well as various other commands)
 '''
 
+RESOURCE_DIR = '/resources/cluster'
 
 class ClusterPreparer:
     def __init__(self, cluster_conf):
         self.status = 'Initializing'
-        self.cluster_nodes = get_node_group([cluster_conf['master']] + cluster_conf['workers'])
+        self.cluster_nodes = get_node_group([cluster_conf['nodes']['master']] + cluster_conf['nodes']['workers'])
         self.base_packages = cluster_conf['packages']
         self.docker_packages = cluster_conf['docker']
         self.kube_packages = cluster_conf['kubernetes']
@@ -49,7 +50,7 @@ class ClusterPreparer:
         self.status = 'Base Preperation - Started'
         self.status = 'Base Preperation - Node Configuration'
         self.cluster_nodes.run('swapoff -a; sed -i \'/swap/d\' /etc/fstab')
-        group_put(self.cluster_nodes, 'config/cluster/templates/k8s.conf', '/etc/sysctl.d/k8s.conf')
+        group_put(self.cluster_nodes, '{}/k8s.conf'.format(RESOURCE_DIR), '/etc/sysctl.d/k8s.conf')
         self.cluster_nodes.run('sysctl --system')
         
         self.status = 'Base Preperation - Installing Base Packages'
@@ -66,7 +67,7 @@ class ClusterPreparer:
         install_apt_packages(self.cluster_nodes, self.docker_packages, hold=True)
 
         self.status = 'Docker Installation - Configuration'
-        group_put(self.cluster_nodes, 'config/cluster/templates/daemon.json', '/etc/docker/daemon.json')
+        group_put(self.cluster_nodes, '{}/daemon.json'.format(RESOURCE_DIR), '/etc/docker/daemon.json')
         self.cluster_nodes.run('mkdir -p /etc/systemd/system/docker.service.d')
         self.cluster_nodes.run('systemctl daemon-reload')
         self.cluster_nodes.run('systemctl restart docker')
@@ -77,7 +78,7 @@ class ClusterPreparer:
     def install_kubernetes(self):
         self.status = 'Kubernetes Installation - Started'
         self.cluster_nodes.run('curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -', hide=True)
-        group_put(self.cluster_nodes, 'config/cluster/templates/kubernetes.list', '/etc/apt/sources.list.d/kubernetes.list')
+        group_put(self.cluster_nodes, '{}/kubernetes.list'.format(RESOURCE_DIR), '/etc/apt/sources.list.d/kubernetes.list')
 
         self.status = 'Kubernetes Installation - Installing Packages'
         install_apt_packages(self.cluster_nodes, self.kube_packages, hold=True)
