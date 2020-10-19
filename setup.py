@@ -80,9 +80,9 @@ def init_kubeadm(config):
 def install_plugins(config):
     plugin_conf = config["plugins"]
     master_conn = Connection(config["nodes"]["master"], user="root")
-    #install_calico(master_conn, plugin_conf['calico'])
-    #install_helm(master_conn, plugin_conf['helm'])
-    #install_metallb(master_conn, plugin_conf['metallb'])
+    install_calico(master_conn, plugin_conf['calico'])
+    install_helm(master_conn, plugin_conf['helm'])
+    install_metallb(master_conn, plugin_conf['metallb'])
     install_nfs_client_provisioner(master_conn, plugin_conf['nfs-client-provisioner'])
     
 def install_calico(master_conn, calico_conf):
