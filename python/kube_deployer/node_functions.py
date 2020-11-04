@@ -20,7 +20,7 @@ def group_put(conn_group, local_path, remote_path):
         conn.put(local_path, remote=remote_path)
 
 def single_put(conn, local_path, remote_path):
-    con.put(local_path, remote=remote_path)
+    conn.put(local_path, remote=remote_path)
 
 def get_stdout(conn, command):
     stdout = conn.run(command, hide=True).stdout

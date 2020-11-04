@@ -1,5 +1,5 @@
 import time
-from helpers import get_node, get_node_group, get_stdout
+from .node_functions import get_node, get_node_group, get_stdout
 
 class ClusterDeployer:
     def __init__(self, cluster_conf, plugin_conf):

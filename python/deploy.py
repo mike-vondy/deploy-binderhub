@@ -1,14 +1,13 @@
-from helpers import get_node, get_node_group, read_conf
-from ClusterPreparer import ClusterPreparer
-from ClusterDeployer import ClusterDeployer
+from kube_deployer import read_conf, ClusterDeployer, ClusterPreparer
 from threading import Thread
 import time
+import sys
 #from MasterNode import MasterNode
 #from WorkerNode import WorkerNode
 
-def prepare():
+def prepare(conf_dir='config'):
     print('### Preparing Kubernetes Cluster Nodes ###')
-    cluster_conf = read_conf('config/cluster/nodes.yaml')
+    cluster_conf = read_conf('{}/cluster.yaml'.format(conf_dir))
     with ClusterPreparer(cluster_conf) as preparer:
         status_watcher = Thread(target=preparer.prepare)
         status_watcher.start()
@@ -21,9 +20,9 @@ def prepare():
                 print('--- Cluster Preperation Complete ---')
                 break
 
-def deploy():
-    cluster_conf = read_conf('config/cluster.yaml')
-    plugin_conf = read_conf('config/plugins.yaml')
+def deploy(conf_dir='config'):
+    cluster_conf = read_conf('{}/cluster.yaml'.format(conf_dir))
+    plugin_conf = read_conf('{}/plugins.yaml'.format(conf_dir))
     print('### Deploying Kubernetes and Plugins ###')
     with ClusterDeployer(cluster_conf, plugin_conf) as deployer:
         status_watcher = Thread(target=deployer.deploy)
@@ -37,6 +36,18 @@ def deploy():
                 print('--- Cluster Deployment Exiting ---')
                 break
 
+
 if __name__=="__main__":
-    prepare()
-    deploy()
+    # Budget version of the Argument selector that needs to be implemented
+    try: # If user selects a specific option and cluster
+        command, cluster = sys.argv[1].split('=')
+        cluster_conf = 'config/clusters/{}'.format(cluster)
+        if command == 'prepare':
+            prepare(conf_dir=cluster_conf)
+        if command == 'deploy':
+            deploy(conf_dir=cluster_conf)
+    except:
+        print('For now - We break...')
+        exit()
+    #prepare()
+    #deploy()

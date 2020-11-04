@@ -1,10 +1,12 @@
 /config/cluster.yaml
 /config/plugins.yaml
+/config/clusters/*
 
 /resources/packages/*
 
-/python/__pycache__/
+__pycache__/
 *.pyc[cod]
+*$py.class
 
 pip-log.txt
 pip-delete-this-directory.txt

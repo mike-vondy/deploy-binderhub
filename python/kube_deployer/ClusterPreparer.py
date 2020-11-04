@@ -1,5 +1,7 @@
-from helpers import get_node_group, install_apt_packages, group_put, single_put, get_stdout
+from .node_functions import get_node_group, install_apt_packages, group_put, single_put, get_stdout
 import time
+
+from pathlib import Path
 
 '''
 ClusterPreparer: Class the prepares each node in the cluster for kubernetes initialization.
@@ -12,7 +14,7 @@ Details:
 (Also Moves specific files into the right places on hosts as well as various other commands)
 '''
 
-RESOURCE_DIR = '/resources/cluster'
+RESOURCE_DIR = 'resources/cluster'
 
 class ClusterPreparer:
     def __init__(self, cluster_conf):
@@ -38,6 +40,8 @@ class ClusterPreparer:
         return '\n' + '\n'.join(preparer_statements) + '\n' #Just for simplifying the addition to prints
 
     def prepare(self):
+        p = Path('.')
+        [print(x) for x in p.iterdir() if x.is_dir()]
         self.status = 'Started'
         
         self.base_preperation()
